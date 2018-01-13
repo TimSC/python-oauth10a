@@ -48,12 +48,13 @@ _BSMILEY = b':-)'
 _USMILEY = u(_BSMILEY)
 _BGLYPH = b'\xae'
 _UGLYPH = u(_BGLYPH, 'latin1')
-_B2019 = b'\xe2\x80\x99' # u'\u2019' encoded to UTF-8
-_U2019 = u(_B2019, 'utf8') # u'\u2019'
-_B2766 = b'\xe2\x9d\xa6' # u'\u2766' encoded to UTF-8
-_U2766 = u(_B2766, 'utf8') # u'\u2766'
+_B2019 = b'\xe2\x80\x99'  # u'\u2019' encoded to UTF-8
+_U2019 = u(_B2019, 'utf8')  # u'\u2019'
+_B2766 = b'\xe2\x9d\xa6'  # u'\u2766' encoded to UTF-8
+_U2766 = u(_B2766, 'utf8')  # u'\u2766'
 
 PY3 = sys.version_info >= (3,)
+
 
 class TestError(unittest.TestCase):
     def test_message(self):
@@ -73,6 +74,7 @@ class TestError(unittest.TestCase):
             raise oauth.Error
         except oauth.Error as e:
             self.assertEqual(str(e), 'OAuth error occurred.')
+
 
 class TestGenerateFunctions(unittest.TestCase):
     def test_build_auth_header(self):
@@ -130,6 +132,7 @@ class TestGenerateFunctions(unittest.TestCase):
         now = oauth.generate_timestamp()
         self.assertEqual(exp, now)
 
+
 class TestConsumer(unittest.TestCase):
     def setUp(self):
         self.key = 'my-key'
@@ -151,6 +154,7 @@ class TestConsumer(unittest.TestCase):
         self.assertTrue('oauth_consumer_secret' in res)
         self.assertEqual(res['oauth_consumer_key'], self.consumer.key)
         self.assertEqual(res['oauth_consumer_secret'], self.consumer.secret)
+
 
 class TestToken(unittest.TestCase):
     def setUp(self):
@@ -180,8 +184,8 @@ class TestToken(unittest.TestCase):
         self.token.set_callback(None)
         self.assertEqual(self.token.callback, None)
         # TODO: The following test should probably not pass, but it does
-        #       To fix this, check for None and unset 'true' in set_callback
-        #       Additionally, should a confirmation truly be done of the callback?
+        #   To fix this, check for None and unset 'true' in set_callback
+        #   Additionally, should a confirmation truly be done of the callback?
         self.assertEqual(self.token.callback_confirmed, 'true')
 
     def test_set_verifier(self):
@@ -217,7 +221,8 @@ class TestToken(unittest.TestCase):
         self.assertEqual(url, '%s%s' % (cb, verifier_str))
 
     def test_to_string(self):
-        string = 'oauth_token=%s&oauth_token_secret=%s' % (self.key, self.secret)
+        string = 'oauth_token=%s&oauth_token_secret=%s' % (self.key,
+                                                           self.secret)
         self.assertEqual(self.token.to_string(), string)
 
         self.token.set_callback('http://www.example.com/my-callback')
@@ -236,19 +241,30 @@ class TestToken(unittest.TestCase):
 
     def test___str__(self):
         tok = oauth.Token('tooken', 'seecret')
-        self.assertEqual(str(tok), 'oauth_token=tooken&oauth_token_secret=seecret')
+        self.assertEqual(str(tok),
+                         'oauth_token=tooken&oauth_token_secret=seecret')
 
     def test_from_string(self):
         self.assertRaises(ValueError, lambda: oauth.Token.from_string(''))
-        self.assertRaises(ValueError, lambda: oauth.Token.from_string('blahblahblah'))
-        self.assertRaises(ValueError, lambda: oauth.Token.from_string('blah=blah'))
+        self.assertRaises(ValueError,
+                          lambda: oauth.Token.from_string('blahblahblah'))
+        self.assertRaises(ValueError,
+                          lambda: oauth.Token.from_string('blah=blah'))
 
-        self.assertRaises(ValueError, lambda: oauth.Token.from_string('oauth_token_secret=asfdasf'))
-        self.assertRaises(ValueError, lambda: oauth.Token.from_string('oauth_token_secret='))
-        self.assertRaises(ValueError, lambda: oauth.Token.from_string('oauth_token=asfdasf'))
-        self.assertRaises(ValueError, lambda: oauth.Token.from_string('oauth_token='))
-        self.assertRaises(ValueError, lambda: oauth.Token.from_string('oauth_token=&oauth_token_secret='))
-        self.assertRaises(ValueError, lambda: oauth.Token.from_string('oauth_token=tooken%26oauth_token_secret=seecret'))
+        self.assertRaises(ValueError, lambda: oauth.Token.from_string(
+            'oauth_token_secret=asfdasf'))
+        self.assertRaises(ValueError, lambda: oauth.Token.from_string(
+            'oauth_token_secret='))
+        self.assertRaises(ValueError, lambda: oauth.Token.from_string(
+            'oauth_token=asfdasf'))
+        self.assertRaises(ValueError,
+                          lambda: oauth.Token.from_string('oauth_token='))
+        self.assertRaises(ValueError, lambda: oauth.Token.from_string(
+            'oauth_token=&oauth_token_secret='))
+        self.assertRaises(ValueError,
+                          lambda: oauth.Token.from_string(
+                              'oauth_token=tooken%26oauth_token_secret=seecret'
+                          ))
 
         string = self.token.to_string()
         new = oauth.Token.from_string(string)
@@ -259,17 +275,22 @@ class TestToken(unittest.TestCase):
         new = oauth.Token.from_string(string)
         self._compare_tokens(new)
 
+
 class ReallyEqualMixin:
     def assertReallyEqual(self, a, b, msg=None):
         self.assertEqual(a, b, msg=msg)
-        self.assertEqual(type(a), type(b), msg="a :: %r, b :: %r, %r" % (a, b, msg))
+        self.assertEqual(type(a), type(b),
+                         msg="a :: %r, b :: %r, %r" % (a, b, msg))
+
 
 class TestFuncs(unittest.TestCase):
     def test_to_unicode(self):
         self.assertRaises(TypeError, oauth.to_unicode, 0)
         self.assertRaises(TypeError, oauth.to_unicode, b'\xae')
-        self.assertRaises(TypeError, oauth.to_unicode_optional_iterator, b'\xae')
-        self.assertRaises(TypeError, oauth.to_unicode_optional_iterator, [b'\xae'])
+        self.assertRaises(TypeError, oauth.to_unicode_optional_iterator,
+                          b'\xae')
+        self.assertRaises(TypeError, oauth.to_unicode_optional_iterator,
+                          [b'\xae'])
 
         self.assertEqual(oauth.to_unicode(_BSMILEY), _USMILEY)
         self.assertEqual(oauth.to_unicode(_UGLYPH), _UGLYPH)
@@ -280,7 +301,7 @@ class TestFuncs(unittest.TestCase):
         self.assertRaises(TypeError, oauth.to_utf8, b'\x81')
         self.assertEqual(oauth.to_utf8(_BSMILEY), _BSMILEY)
         self.assertEqual(oauth.to_utf8(_UGLYPH),
-                             _UGLYPH.encode('utf8'))
+                         _UGLYPH.encode('utf8'))
 
     def test_to_unicode_if_string(self):
         self.assertTrue(oauth.to_unicode_if_string(self) is self)
@@ -290,35 +311,36 @@ class TestFuncs(unittest.TestCase):
         self.assertTrue(oauth.to_utf8_if_string(self) is self)
         self.assertEqual(oauth.to_utf8_if_string(_USMILEY), _BSMILEY)
         self.assertEqual(oauth.to_utf8_if_string(_UGLYPH),
-                             _UGLYPH.encode('utf8'))
+                         _UGLYPH.encode('utf8'))
 
     def test_to_unicode_optional_iterator(self):
         self.assertEqual(oauth.to_unicode_optional_iterator(_BSMILEY),
-                             _USMILEY)
+                         _USMILEY)
         self.assertEqual(oauth.to_unicode_optional_iterator(_UGLYPH),
-                             _UGLYPH)
+                         _UGLYPH)
         self.assertEqual(oauth.to_unicode_optional_iterator([_BSMILEY]),
-                             [_USMILEY])
+                         [_USMILEY])
         self.assertEqual(oauth.to_unicode_optional_iterator([_UGLYPH]),
-                             [_UGLYPH])
+                         [_UGLYPH])
         self.assertEqual(oauth.to_unicode_optional_iterator((_UGLYPH,)),
-                             [_UGLYPH])
+                         [_UGLYPH])
         self.assertTrue(oauth.to_unicode_optional_iterator(self) is self)
 
     def test_to_utf8_optional_iterator(self):
         self.assertEqual(oauth.to_utf8_optional_iterator(_BSMILEY),
-                             _BSMILEY)
+                         _BSMILEY)
         self.assertEqual(oauth.to_utf8_optional_iterator(_UGLYPH),
-                             _UGLYPH.encode('utf8'))
+                         _UGLYPH.encode('utf8'))
         self.assertEqual(oauth.to_utf8_optional_iterator([_BSMILEY]),
-                             [_BSMILEY])
+                         [_BSMILEY])
         self.assertEqual(oauth.to_utf8_optional_iterator([_USMILEY]),
-                             [_BSMILEY])
+                         [_BSMILEY])
         self.assertEqual(oauth.to_utf8_optional_iterator([_UGLYPH]),
-                             [_UGLYPH.encode('utf8')])
+                         [_UGLYPH.encode('utf8')])
         self.assertEqual(oauth.to_utf8_optional_iterator((_UGLYPH,)),
-                             [_UGLYPH.encode('utf8')])
+                         [_UGLYPH.encode('utf8')])
         self.assertTrue(oauth.to_utf8_optional_iterator(self) is self)
+
 
 class TestRequest(unittest.TestCase, ReallyEqualMixin):
     def test__init__(self):
@@ -377,7 +399,7 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
         token = oauth.Token('my_key', 'my_secret')
         request = oauth.Request("GET", "http://example.com/fetch.php")
         request.sign_request(oauth.SignatureMethod_HMAC_SHA1(), consumer,
-            token)
+                             token)
 
         self.assertEqual(consumer.key, request['oauth_consumer_key'])
         self.assertEqual(token.key, request['oauth_token'])
@@ -391,7 +413,9 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
                           oauth.SignatureMethod_HMAC_SHA1(), consumer, token)
 
     def test_url_query(self):
-        url = ("https://www.google.com/m8/feeds/contacts/default/full/?alt=json&max-contacts=10")
+        host = "https://www.google.com/"
+        path = "m8/feeds/contacts/default/full/?alt=json&max-contacts=10"
+        url = host + path
         normalized_url = urlunparse(urlparse(url)[:3] + (None, None, None))
         method = "GET"
         req = oauth.Request(method, url)
@@ -401,7 +425,7 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
     def test_get_parameter(self):
         url = "http://example.com"
         method = "GET"
-        params = {'oauth_consumer' : 'asdf'}
+        params = {'oauth_consumer': 'asdf'}
         req = oauth.Request(method, url, parameters=params)
 
         self.assertEqual(req.get_parameter('oauth_consumer'), 'asdf')
@@ -420,7 +444,7 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
             u('uni_utf8'): u(b'\xae', 'latin1'),
             u('uni_unicode'): _UGLYPH,
             u('uni_unicode_2'):
-                u(b'\xc3\xa5\xc3\x85\xc3\xb8\xc3\x98', 'latin1'), # 'åÅøØ'
+                u(b'\xc3\xa5\xc3\x85\xc3\xb8\xc3\x98', 'latin1'),  # 'åÅøØ'
         }
 
         params = oauth_params
@@ -475,10 +499,12 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
 
         req = oauth.Request("GET", "http://example.com", params)
 
-        # We need to split out the host and params and check individually since the order is not determinate.
+        # We need to split out the host and params and check
+        # individually since the order is not determinate.
         url_parts = req.to_url().split("?")
         host = url_parts[0]
-        params = dict(item.strip().split("=") for item in url_parts[1].split("&"))
+        params = dict(
+            item.strip().split("=") for item in url_parts[1].split("&"))
 
         expected_params = {
             'uni_utf8': '%C2%AE',
@@ -551,13 +577,13 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
              '&oauth_timestamp=137131200'
              '&oauth_token=ad180jjd733klru7'
              '&oauth_version=1.0'
-            ))
+             ))
 
     def test_to_postdata(self):
         realm = "http://sp.example.com/"
 
         params = {
-            'multi': ['FOO','BAR'],
+            'multi': ['FOO', 'BAR'],
             'oauth_version': "1.0",
             'oauth_nonce': "4572616e48616d6d65724c61686176",
             'oauth_timestamp': "137131200",
@@ -569,13 +595,13 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
 
         req = oauth.Request("GET", realm, params)
 
-        flat = [('multi','FOO'),('multi','BAR')]
+        flat = [('multi', 'FOO'), ('multi', 'BAR')]
         del params['multi']
         flat.extend(params.items())
         kf = lambda x: x[0]
         self.assertEqual(
-                sorted(flat, key=kf),
-                sorted(parse_qsl(req.to_postdata()), key=kf))
+            sorted(flat, key=lambda x: x[0]),
+            sorted(parse_qsl(req.to_postdata()), key=lambda x: x[0]))
 
     def test_to_url(self):
         url = "http://sp.example.com/"
@@ -657,7 +683,7 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
             req.normalized_url,
             u('http://api.simplegeo.com/1.0/places/address.json'))
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), consumer, None)
-        self.assertReallyEqual( #XXX
+        self.assertReallyEqual(  # XXX
             req['oauth_signature'], b'WhufgeZKyYpKsI70GZaiDaYwl6g=')
 
     def test_signature_base_bytes_nonascii_nonutf8_urlencoded(self):
@@ -722,7 +748,7 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
 
         res = req.get_normalized_parameters()
 
-        expected='empty='
+        expected = 'empty='
 
         self.assertEqual(expected, res)
 
@@ -745,16 +771,29 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
         self.assertEqual(expected, res)
 
     def test_get_normalized_parameters_multiple(self):
-        url = "http://example.com/v2/search/videos?oauth_nonce=79815175&oauth_timestamp=1295397962&oauth_consumer_key=mykey&oauth_signature_method=HMAC-SHA1&oauth_version=1.0&offset=10&oauth_signature=spWLI%2FGQjid7sQVd5%2FarahRxzJg%3D&tag=one&tag=two"
+        url = "http://example.com/v2/search/videos" \
+              "?oauth_nonce=79815175" \
+              "&oauth_timestamp=1295397962" \
+              "&oauth_consumer_key=mykey" \
+              "&oauth_signature_method=HMAC-SHA1" \
+              "&oauth_version=1.0" \
+              "&offset=10" \
+              "&oauth_signature=spWLI%2FGQjid7sQVd5%2FarahRxzJg%3D" \
+              "&tag=one&tag=two"
 
         req = oauth.Request("GET", url)
 
         res = req.get_normalized_parameters()
 
-        expected='oauth_consumer_key=mykey&oauth_nonce=79815175&oauth_signature_method=HMAC-SHA1&oauth_timestamp=1295397962&oauth_version=1.0&offset=10&tag=one&tag=two'
+        expected = 'oauth_consumer_key=mykey' \
+                   '&oauth_nonce=79815175' \
+                   '&oauth_signature_method=HMAC-SHA1' \
+                   '&oauth_timestamp=1295397962' \
+                   '&oauth_version=1.0' \
+                   '&offset=10' \
+                   '&tag=one&tag=two'
 
         self.assertEqual(expected, res)
-
 
     def test_get_normalized_parameters_from_url(self):
         # example copied from
@@ -817,8 +856,8 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
             'oauth_consumer_key': "0685bd9184jfhq22",
             'oauth_signature_method': "HMAC-SHA1",
             'oauth_token': "ad180jjd733klru7",
-            'multi': ['FOO','BAR', _UGLYPH, b'\xc2\xae'],
-            'multi_same': ['FOO','FOO'],
+            'multi': ['FOO', 'BAR', _UGLYPH, b'\xc2\xae'],
+            'multi_same': ['FOO', 'FOO'],
             'uni_utf8_bytes': b'\xc2\xae',
             'uni_unicode_object': _UGLYPH
         }
@@ -848,7 +887,8 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
             'oauth_timestamp': "137131200",
             'oauth_consumer_key': "0685bd9184jfhq22",
             'oauth_signature_method': "HMAC-SHA1",
-            'oauth_signature': "some-random-signature-%d" % random.randint(1000, 2000),
+            'oauth_signature': "some-random-signature-%d" % random.randint(1000,
+                                                                           2000),
             'oauth_token': "ad180jjd733klru7",
         }
 
@@ -861,12 +901,14 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
         foo = params.copy()
         del foo["oauth_signature"]
         self.assertEqual(urlencode(sorted(foo.items())), res)
-        
+
     def test_signature_base_string_with_matrix_params(self):
         url = "http://social.yahooapis.com/v1/user/6677/connections;start=0;count=20"
         req = oauth.Request("GET", url, None)
-        self.assertEqual(req.normalized_url, 'http://social.yahooapis.com/v1/user/6677/connections;start=0;count=20')
-        self.assertEqual(req.url, 'http://social.yahooapis.com/v1/user/6677/connections;start=0;count=20')
+        self.assertEqual(req.normalized_url,
+                         'http://social.yahooapis.com/v1/user/6677/connections;start=0;count=20')
+        self.assertEqual(req.url,
+                         'http://social.yahooapis.com/v1/user/6677/connections;start=0;count=20')
 
     def test_set_signature_method(self):
         consumer = oauth.Consumer('key', 'secret')
@@ -890,7 +932,7 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
         params = {
             "some_random_data": random.randint(100, 1000),
             "data": "This data with a random number (%d) has spaces!"
-                                    % random.randint(1000, 2000),
+                    % random.randint(1000, 2000),
         }
 
         req = oauth.Request("GET", url, params)
@@ -917,47 +959,53 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
         if not PY3:
             # If someone passes a sequence of bytes which is not ascii for
             # url, we'll raise an exception as early as possible.
-            url = "http://sp.example.com/\x92" # It's actually cp1252-encoding...
-            self.assertRaises(TypeError, oauth.Request, method="GET", url=url, parameters=params)
+            url = "http://sp.example.com/\x92"  # It's actually cp1252-encoding
+            self.assertRaises(TypeError, oauth.Request, method="GET", url=url,
+                              parameters=params)
 
         # And if they pass an unicode, then we'll use it.
         url = u('http://sp.example.com/') + _U2019
         req = oauth.Request(method="GET", url=url, parameters=params)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, None)
-        self.assertReallyEqual(req['oauth_signature'], b'cMzvCkhvLL57+sTIxLITTHfkqZk=')
+        self.assertReallyEqual(req['oauth_signature'],
+                               b'cMzvCkhvLL57+sTIxLITTHfkqZk=')
 
         # And if it is a utf-8-encoded-then-percent-encoded non-ascii
         # thing, we'll decode it and use it.
         url = "http://sp.example.com/%E2%80%99"
         req = oauth.Request(method="GET", url=url, parameters=params)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, None)
-        self.assertReallyEqual(req['oauth_signature'], b'yMLKOyNKC/DkyhUOb8DLSvceEWE=')
+        self.assertReallyEqual(req['oauth_signature'],
+                               b'yMLKOyNKC/DkyhUOb8DLSvceEWE=')
 
         # Same thing with the params.
         url = "http://sp.example.com/"
 
         # If someone passes a sequence of bytes which is not ascii in
         # params, we'll raise an exception as early as possible.
-        params['non_oauth_thing'] = b'\xae', # It's actually cp1252-encoding...
-        self.assertRaises(TypeError, oauth.Request, method="GET", url=url, parameters=params)
+        params['non_oauth_thing'] = b'\xae',  # It's actually cp1252-encoding...
+        self.assertRaises(TypeError, oauth.Request, method="GET", url=url,
+                          parameters=params)
 
         # And if they pass a unicode, then we'll use it.
         params['non_oauth_thing'] = _U2019
         req = oauth.Request(method="GET", url=url, parameters=params)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, None)
-        self.assertReallyEqual(req['oauth_signature'], b'0GU50m0v60CVDB5JnoBXnvvvKx4=')
+        self.assertReallyEqual(req['oauth_signature'],
+                               b'0GU50m0v60CVDB5JnoBXnvvvKx4=')
 
         # And if it is a utf-8-encoded non-ascii thing, we'll decode
         # it and use it.
         params['non_oauth_thing'] = b'\xc2\xae'
         req = oauth.Request(method="GET", url=url, parameters=params)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, None)
-        self.assertReallyEqual(req['oauth_signature'], b'pqOCu4qvRTiGiXB8Z61Jsey0pMM=')
-
+        self.assertReallyEqual(req['oauth_signature'],
+                               b'pqOCu4qvRTiGiXB8Z61Jsey0pMM=')
 
         # Also if there are non-utf8 bytes in the query args.
-        url = b"http://sp.example.com/?q=\x92" # cp1252
-        self.assertRaises(TypeError, oauth.Request, method="GET", url=url, parameters=params)
+        url = b"http://sp.example.com/?q=\x92"  # cp1252
+        self.assertRaises(TypeError, oauth.Request, method="GET", url=url,
+                          parameters=params)
 
     def test_request_hash_of_body(self):
         tok = oauth.Token(key="token", secret="tok-test-secret")
@@ -976,10 +1024,13 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
         }
 
         url = u('http://www.example.com/resource')
-        req = oauth.Request(method="PUT", url=url, parameters=params, body=b"Hello World!", is_form_encoded=False)
+        req = oauth.Request(method="PUT", url=url, parameters=params,
+                            body=b"Hello World!", is_form_encoded=False)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, None)
-        self.assertReallyEqual(req['oauth_body_hash'], b'Lve95gjOVATpfV8EL5X4nxwjKHE=')
-        self.assertReallyEqual(req['oauth_signature'], b't+MX8l/0S8hdbVQL99nD0X1fPnM=')
+        self.assertReallyEqual(req['oauth_body_hash'],
+                               b'Lve95gjOVATpfV8EL5X4nxwjKHE=')
+        self.assertReallyEqual(req['oauth_signature'],
+                               b't+MX8l/0S8hdbVQL99nD0X1fPnM=')
         # oauth-bodyhash.html A.1 has
         # '08bUFF%2Fjmp59mWB7cSgCYBUpJ0U%3D', but I don't see how that
         # is possible.
@@ -993,10 +1044,13 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
             'oauth_consumer_key': con.key
         }
 
-        req = oauth.Request(method="PUT", url=url, parameters=params, body=b"Hello World!", is_form_encoded=False)
+        req = oauth.Request(method="PUT", url=url, parameters=params,
+                            body=b"Hello World!", is_form_encoded=False)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, None)
-        self.assertReallyEqual(req['oauth_body_hash'], b'Lve95gjOVATpfV8EL5X4nxwjKHE=')
-        self.assertReallyEqual(req['oauth_signature'], b'CTFmrqJIGT7NsWJ42OrujahTtTc=')
+        self.assertReallyEqual(req['oauth_body_hash'],
+                               b'Lve95gjOVATpfV8EL5X4nxwjKHE=')
+        self.assertReallyEqual(req['oauth_signature'],
+                               b'CTFmrqJIGT7NsWJ42OrujahTtTc=')
 
         # Appendix A.2
         params = {
@@ -1007,11 +1061,13 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
             'oauth_consumer_key': con.key
         }
 
-        req = oauth.Request(method="GET", url=url, parameters=params, is_form_encoded=False)
+        req = oauth.Request(method="GET", url=url, parameters=params,
+                            is_form_encoded=False)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, None)
-        self.assertReallyEqual(req['oauth_body_hash'], b'2jmj7l5rSw0yVb/vlWAYkK/YBwk=')
-        self.assertReallyEqual(req['oauth_signature'], b'Zhl++aWSP0O3/hYQ0CuBc7jv38I=')
-
+        self.assertReallyEqual(req['oauth_body_hash'],
+                               b'2jmj7l5rSw0yVb/vlWAYkK/YBwk=')
+        self.assertReallyEqual(req['oauth_signature'],
+                               b'Zhl++aWSP0O3/hYQ0CuBc7jv38I=')
 
     def test_sign_request(self):
         url = "http://sp.example.com/"
@@ -1032,7 +1088,7 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
         methods = {
             b'DX01TdHws7OninCLK9VztNTH1M4=': oauth.SignatureMethod_HMAC_SHA1(),
             b'con-test-secret&tok-test-secret': oauth.SignatureMethod_PLAINTEXT()
-            }
+        }
 
         for exp, method in methods.items():
             req.sign_request(method, con, tok)
@@ -1040,27 +1096,30 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
             self.assertEqual(req['oauth_signature'], exp)
 
         # Also if there are non-ascii chars in the URL.
-        url = b"http://sp.example.com/\xe2\x80\x99" # utf-8 bytes
+        url = b"http://sp.example.com/\xe2\x80\x99"  # utf-8 bytes
         req = oauth.Request(method="GET", url=url, parameters=params)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, tok)
-        self.assertEqual(req['oauth_signature'], b'loFvp5xC7YbOgd9exIO6TxB7H4s=')
+        self.assertEqual(req['oauth_signature'],
+                         b'loFvp5xC7YbOgd9exIO6TxB7H4s=')
 
-        url = u('http://sp.example.com/') + _U2019 # Python unicode object
+        url = u('http://sp.example.com/') + _U2019  # Python unicode object
         req = oauth.Request(method="GET", url=url, parameters=params)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, tok)
-        self.assertEqual(req['oauth_signature'], b'loFvp5xC7YbOgd9exIO6TxB7H4s=')
+        self.assertEqual(req['oauth_signature'],
+                         b'loFvp5xC7YbOgd9exIO6TxB7H4s=')
 
         # Also if there are non-ascii chars in the query args.
-        url = b"http://sp.example.com/?q=\xe2\x80\x99" # utf-8 bytes
+        url = b"http://sp.example.com/?q=\xe2\x80\x99"  # utf-8 bytes
         req = oauth.Request(method="GET", url=url, parameters=params)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, tok)
-        self.assertEqual(req['oauth_signature'], b'IBw5mfvoCsDjgpcsVKbyvsDqQaU=')
+        self.assertEqual(req['oauth_signature'],
+                         b'IBw5mfvoCsDjgpcsVKbyvsDqQaU=')
 
-        url = u('http://sp.example.com/?q=') + _U2019 # Python unicode object
+        url = u('http://sp.example.com/?q=') + _U2019  # Python unicode object
         req = oauth.Request(method="GET", url=url, parameters=params)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, tok)
-        self.assertEqual(req['oauth_signature'], b'IBw5mfvoCsDjgpcsVKbyvsDqQaU=')
-
+        self.assertEqual(req['oauth_signature'],
+                         b'IBw5mfvoCsDjgpcsVKbyvsDqQaU=')
 
     def test_from_request_works_with_wsgi(self):
         """Make sure WSGI header HTTP_AUTHORIZATION is detected correctly."""
@@ -1081,14 +1140,13 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
 
         # Munge the headers
         headers['HTTP_AUTHORIZATION'] = headers['Authorization']
-        del headers['Authorization'] 
+        del headers['Authorization']
 
         # Test from the headers
         req = oauth.Request.from_request("GET", url, headers)
         self.assertEqual(req.method, "GET")
         self.assertEqual(req.url, url)
         self.assertEqual(params, req.copy())
-
 
     def test_from_request_is_case_insensitive_checking_for_auth(self):
         """Checks for the Authorization header should be case insensitive."""
@@ -1109,14 +1167,13 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
 
         # Munge the headers
         headers['authorization'] = headers['Authorization']
-        del headers['Authorization'] 
+        del headers['Authorization']
 
         # Test from the headers
         req = oauth.Request.from_request("GET", url, headers)
         self.assertEqual(req.method, "GET")
         self.assertEqual(req.url, url)
         self.assertEqual(params, req.copy())
-
 
     def test_from_request(self):
         url = "http://sp.example.com/"
@@ -1143,11 +1200,11 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
 
         # Test with bad OAuth headers
         bad_headers = {
-            'Authorization' : 'OAuth this is a bad header'
+            'Authorization': 'OAuth this is a bad header'
         }
 
         self.assertRaises(oauth.Error, oauth.Request.from_request, "GET",
-            url, bad_headers)
+                          url, bad_headers)
 
         # Test getting from query string
         qs = urlencode(params)
@@ -1192,11 +1249,13 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
         tok.set_verifier('this_is_a_test_verifier')
         con = oauth.Consumer(key="con-test-key", secret="con-test-secret")
         req = oauth.Request.from_consumer_and_token(con, token=tok,
-            http_method="GET", http_url=url)
+                                                    http_method="GET",
+                                                    http_url=url)
 
         self.assertEqual(req['oauth_token'], tok.key)
         self.assertEqual(req['oauth_consumer_key'], con.key)
         self.assertEqual(tok.verifier, req['oauth_verifier'])
+
 
 class SignatureMethod_Bad(oauth.SignatureMethod):
     name = "BAD"
@@ -1210,33 +1269,34 @@ class SignatureMethod_Bad(oauth.SignatureMethod):
 
 class TestServer(unittest.TestCase):
     def setUp(self):
-        self.url = "http://sp.example.com/"
+        url = "http://sp.example.com/"
 
         params = {
             'oauth_version': "1.0",
             'oauth_nonce': "4572616e48616d6d65724c61686176",
             'oauth_timestamp': int(time.time()),
             'bar': 'blerg',
-            'multi': ['FOO','BAR'],
+            'multi': ['FOO', 'BAR'],
             'foo': 59
         }
 
         self.consumer = oauth.Consumer(key="consumer-key",
-            secret="consumer-secret")
+                                       secret="consumer-secret")
         self.token = oauth.Token(key="token-key", secret="token-secret")
 
         params['oauth_token'] = self.token.key
         params['oauth_consumer_key'] = self.consumer.key
-        self.request = oauth.Request(method="GET", url=self.url, parameters=params)
+        self.request = oauth.Request(method="GET", url=url, parameters=params)
 
         signature_method = oauth.SignatureMethod_HMAC_SHA1()
         self.request.sign_request(signature_method, self.consumer, self.token)
 
     def test_init(self):
-        server = oauth.Server(signature_methods={'HMAC-SHA1' : oauth.SignatureMethod_HMAC_SHA1()})
+        server = oauth.Server(
+            signature_methods={'HMAC-SHA1': oauth.SignatureMethod_HMAC_SHA1()})
         self.assertTrue('HMAC-SHA1' in server.signature_methods)
         self.assertTrue(isinstance(server.signature_methods['HMAC-SHA1'],
-            oauth.SignatureMethod_HMAC_SHA1))
+                                   oauth.SignatureMethod_HMAC_SHA1))
 
         server = oauth.Server()
         self.assertEqual(server.signature_methods, {})
@@ -1247,49 +1307,38 @@ class TestServer(unittest.TestCase):
         self.assertTrue(len(res) == 1)
         self.assertTrue('HMAC-SHA1' in res)
         self.assertTrue(isinstance(res['HMAC-SHA1'],
-            oauth.SignatureMethod_HMAC_SHA1))
+                                   oauth.SignatureMethod_HMAC_SHA1))
 
         res = server.add_signature_method(oauth.SignatureMethod_PLAINTEXT())
         self.assertTrue(len(res) == 2)
         self.assertTrue('PLAINTEXT' in res)
         self.assertTrue(isinstance(res['PLAINTEXT'],
-            oauth.SignatureMethod_PLAINTEXT))
+                                   oauth.SignatureMethod_PLAINTEXT))
 
     def test_verify_request(self):
         server = oauth.Server()
         server.add_signature_method(oauth.SignatureMethod_HMAC_SHA1())
 
         parameters = server.verify_request(self.request, self.consumer,
-            self.token)
+                                           self.token)
 
         self.assertTrue('bar' in parameters)
         self.assertTrue('foo' in parameters)
         self.assertTrue('multi' in parameters)
         self.assertEqual(parameters['bar'], 'blerg')
         self.assertEqual(parameters['foo'], 59)
-        self.assertEqual(parameters['multi'], ['FOO','BAR'])
-
-    def test_verify_request_query_string(self):
-        server = oauth.Server()
-        server.add_signature_method(oauth.SignatureMethod_HMAC_SHA1())
-
-        signature_method = oauth.SignatureMethod_HMAC_SHA1()
-        request2 = oauth.Request.from_request("GET", self.url, query_string=urlencode(dict(self.request)))
-        request2.sign_request(signature_method, self.consumer, self.token)
-        request3 = oauth.Request.from_request("GET", self.url, query_string=urlencode(dict(request2)))        
-
-        parameters = server.verify_request(request3, self.consumer,
-            self.token)
+        self.assertEqual(parameters['multi'], ['FOO', 'BAR'])
 
     def test_verify_request_missing_signature(self):
-        from oauth10a import MissingSignature
+        from oauth2 import MissingSignature
         server = oauth.Server()
         server.add_signature_method(oauth.SignatureMethod_PLAINTEXT())
         del self.request['oauth_signature_method']
         del self.request['oauth_signature']
 
         self.assertRaises(MissingSignature,
-               server.verify_request, self.request, self.consumer, self.token)
+                          server.verify_request, self.request, self.consumer,
+                          self.token)
 
     def test_verify_request_invalid_signature(self):
         server = oauth.Server()
@@ -1297,7 +1346,8 @@ class TestServer(unittest.TestCase):
         self.request['oauth_signature'] = 'BOGUS'
 
         self.assertRaises(oauth.Error,
-               server.verify_request, self.request, self.consumer, self.token)
+                          server.verify_request, self.request, self.consumer,
+                          self.token)
 
     def test_verify_request_invalid_timestamp(self):
         server = oauth.Server()
@@ -1305,14 +1355,15 @@ class TestServer(unittest.TestCase):
         self.request['oauth_timestamp'] -= 86400
 
         self.assertRaises(oauth.Error,
-               server.verify_request, self.request, self.consumer, self.token)
+                          server.verify_request, self.request, self.consumer,
+                          self.token)
 
     def test_build_authenticate_header(self):
         server = oauth.Server()
         headers = server.build_authenticate_header('example.com')
         self.assertTrue('WWW-Authenticate' in headers)
         self.assertEqual('OAuth realm="example.com"',
-            headers['WWW-Authenticate'])
+                         headers['WWW-Authenticate'])
 
     def test_no_version(self):
         url = "http://sp.example.com/"
@@ -1321,12 +1372,12 @@ class TestServer(unittest.TestCase):
             'oauth_nonce': "4572616e48616d6d65724c61686176",
             'oauth_timestamp': int(time.time()),
             'bar': 'blerg',
-            'multi': ['FOO','BAR'],
+            'multi': ['FOO', 'BAR'],
             'foo': 59
         }
 
         self.consumer = oauth.Consumer(key="consumer-key",
-            secret="consumer-secret")
+                                       secret="consumer-secret")
         self.token = oauth.Token(key="token-key", secret="token-secret")
 
         params['oauth_token'] = self.token.key
@@ -1340,7 +1391,7 @@ class TestServer(unittest.TestCase):
         server.add_signature_method(oauth.SignatureMethod_HMAC_SHA1())
 
         parameters = server.verify_request(self.request, self.consumer,
-            self.token)
+                                           self.token)
 
     def test_invalid_version(self):
         url = "http://sp.example.com/"
@@ -1350,12 +1401,12 @@ class TestServer(unittest.TestCase):
             'oauth_nonce': "4572616e48616d6d65724c61686176",
             'oauth_timestamp': int(time.time()),
             'bar': 'blerg',
-            'multi': ['foo','bar'],
+            'multi': ['foo', 'bar'],
             'foo': 59
         }
 
         consumer = oauth.Consumer(key="consumer-key",
-            secret="consumer-secret")
+                                  secret="consumer-secret")
         token = oauth.Token(key="token-key", secret="token-secret")
 
         params['oauth_token'] = token.key
@@ -1368,7 +1419,8 @@ class TestServer(unittest.TestCase):
         server = oauth.Server()
         server.add_signature_method(oauth.SignatureMethod_HMAC_SHA1())
 
-        self.assertRaises(oauth.Error, server.verify_request, request, consumer, token)
+        self.assertRaises(oauth.Error, server.verify_request, request, consumer,
+                          token)
 
     def test_invalid_signature_method(self):
         url = "http://sp.example.com/"
@@ -1378,12 +1430,12 @@ class TestServer(unittest.TestCase):
             'oauth_nonce': "4572616e48616d6d65724c61686176",
             'oauth_timestamp': int(time.time()),
             'bar': 'blerg',
-            'multi': ['FOO','BAR'],
+            'multi': ['FOO', 'BAR'],
             'foo': 59
         }
 
         consumer = oauth.Consumer(key="consumer-key",
-            secret="consumer-secret")
+                                  secret="consumer-secret")
         token = oauth.Token(key="token-key", secret="token-secret")
 
         params['oauth_token'] = token.key
@@ -1397,7 +1449,7 @@ class TestServer(unittest.TestCase):
         server.add_signature_method(oauth.SignatureMethod_HMAC_SHA1())
 
         self.assertRaises(oauth.Error, server.verify_request, request,
-            consumer, token)
+                          consumer, token)
 
     def test_missing_signature(self):
         url = "http://sp.example.com/"
@@ -1407,12 +1459,12 @@ class TestServer(unittest.TestCase):
             'oauth_nonce': "4572616e48616d6d65724c61686176",
             'oauth_timestamp': int(time.time()),
             'bar': 'blerg',
-            'multi': ['FOO','BAR'],
+            'multi': ['FOO', 'BAR'],
             'foo': 59
         }
 
         consumer = oauth.Consumer(key="consumer-key",
-            secret="consumer-secret")
+                                  secret="consumer-secret")
         token = oauth.Token(key="token-key", secret="token-secret")
 
         params['oauth_token'] = token.key
@@ -1427,7 +1479,7 @@ class TestServer(unittest.TestCase):
         server.add_signature_method(oauth.SignatureMethod_HMAC_SHA1())
 
         self.assertRaises(oauth.MissingSignature, server.verify_request,
-            request, consumer, token)
+                          request, consumer, token)
 
 
 # Request Token: http://oauth-sandbox.sevengoslings.net/request_token
@@ -1438,10 +1490,10 @@ class TestServer(unittest.TestCase):
 # Key: bd37aed57e15df53
 # Secret: 0e9e6413a9ef49510a4f68ed02cd
 class TestClient(unittest.TestCase):
-#    oauth_uris = {
-#        'request_token': '/request_token.php',
-#        'access_token': '/access_token.php'
-#    }
+    #    oauth_uris = {
+    #        'request_token': '/request_token.php',
+    #        'access_token': '/access_token.php'
+    #    }
 
     oauth_uris = {
         'request_token': '/request_token',
@@ -1457,12 +1509,12 @@ class TestClient(unittest.TestCase):
 
     def setUp(self):
         self.consumer = oauth.Consumer(key=self.consumer_key,
-            secret=self.consumer_secret)
+                                       secret=self.consumer_secret)
 
         self.body = {
             'foo': 'bar',
             'bar': 'foo',
-            'multi': ['FOO','BAR'],
+            'multi': ['FOO', 'BAR'],
             'blah': 599999
         }
 
@@ -1474,17 +1526,17 @@ class TestClient(unittest.TestCase):
         return "%s%s" % (self.host, uri)
 
     def create_simple_multipart_data(self, data):
-        boundary = '---Boundary-%d' % random.randint(1,1000)
+        boundary = '---Boundary-%d' % random.randint(1, 1000)
         crlf = '\r\n'
         items = []
         for key, value in data.items():
             items += [
-                '--'+boundary,
-                'Content-Disposition: form-data; name="%s"'%str(key),
+                '--' + boundary,
+                'Content-Disposition: form-data; name="%s"' % str(key),
                 '',
                 str(value),
             ]
-        items += ['', '--'+boundary+'--', '']
+        items += ['', '--' + boundary + '--', '']
         content_type = 'multipart/form-data; boundary=%s' % boundary
         return content_type, crlf.join(items).encode('ascii')
 
@@ -1508,14 +1560,14 @@ class TestClient(unittest.TestCase):
     def test_init_passes_kwargs_to_httplib2(self):
         class Blah():
             pass
- 
+
         consumer = oauth.Consumer('token', 'secret')
- 
+
         # httplib2 options
-        client = oauth.Client(consumer, None, cache='.cache', timeout=3, disable_ssl_certificate_validation=True)
+        client = oauth.Client(consumer, None, cache='.cache', timeout=3,
+                              disable_ssl_certificate_validation=True)
         self.assertNotEqual(client.cache, None)
         self.assertEqual(client.timeout, 3)
-
 
     def test_access_token_get(self):
         """Test getting an access token via GET."""
@@ -1554,10 +1606,10 @@ class TestClient(unittest.TestCase):
 
     @mock.patch('httplib2.Http.request')
     def test_multipart_post_does_not_alter_body(self, mockHttpRequest):
-        random_result = random.randint(1,100)
+        random_result = random.randint(1, 100)
 
         data = {
-            'rand-%d'%random.randint(1,100):random.randint(1,100),
+            'rand-%d' % random.randint(1, 100): random.randint(1, 100),
         }
         content_type, body = self.create_simple_multipart_data(data)
 
@@ -1567,12 +1619,14 @@ class TestClient(unittest.TestCase):
         def mockrequest(cl, ur, **kw):
             self.assertTrue(cl is client)
             self.assertTrue(ur is uri)
-            self.assertEqual(frozenset(kw.keys()), frozenset(['method', 'body', 'redirections', 'connection_type', 'headers']))
+            self.assertEqual(frozenset(kw.keys()),
+                             frozenset(['method', 'body', 'redirections',
+                                        'connection_type', 'headers']))
             self.assertEqual(kw['body'], body)
             self.assertEqual(kw['connection_type'], None)
             self.assertEqual(kw['method'], 'POST')
             self.assertEqual(kw['redirections'],
-                                 httplib2.DEFAULT_MAX_REDIRECTS)
+                             httplib2.DEFAULT_MAX_REDIRECTS)
             self.assertTrue(isinstance(kw['headers'], dict))
 
             return random_result
@@ -1580,7 +1634,7 @@ class TestClient(unittest.TestCase):
         mockHttpRequest.side_effect = mockrequest
 
         result = client.request(uri, 'POST',
-                                headers={'Content-Type':content_type},
+                                headers={'Content-Type': content_type},
                                 body=body)
         self.assertEqual(result, random_result)
 
@@ -1588,26 +1642,28 @@ class TestClient(unittest.TestCase):
     def test_url_with_query_string(self, mockHttpRequest):
         uri = 'http://example.com/foo/bar/?show=thundercats&character=snarf'
         client = oauth.Client(self.consumer, None)
-        random_result = random.randint(1,100)
+        random_result = random.randint(1, 100)
 
         def mockrequest(cl, ur, **kw):
             self.assertTrue(cl is client)
             self.assertEqual(frozenset(kw.keys()),
-                                 frozenset(['method', 'body', 'redirections',
-                                            'connection_type', 'headers']))
+                             frozenset(['method', 'body', 'redirections',
+                                        'connection_type', 'headers']))
             self.assertEqual(kw['body'], b'')
             self.assertEqual(kw['connection_type'], None)
             self.assertEqual(kw['method'], 'GET')
             self.assertEqual(kw['redirections'],
-                                 httplib2.DEFAULT_MAX_REDIRECTS)
+                             httplib2.DEFAULT_MAX_REDIRECTS)
             self.assertTrue(isinstance(kw['headers'], dict))
 
             req = oauth.Request.from_consumer_and_token(self.consumer, None,
-                    http_method='GET', http_url=uri, parameters={})
+                                                        http_method='GET',
+                                                        http_url=uri,
+                                                        parameters={})
             req.sign_request(oauth.SignatureMethod_HMAC_SHA1(),
                              self.consumer, None)
             expected = parse_qsl(
-                            urlparse(req.to_url()).query)
+                urlparse(req.to_url()).query)
             actual = parse_qsl(urlparse(ur).query)
             self.assertEqual(len(expected), len(actual))
             actual = dict(actual)
@@ -1623,17 +1679,20 @@ class TestClient(unittest.TestCase):
         client.request(uri, 'GET')
 
     @mock.patch('httplib2.Http.request')
-    @mock.patch('oauth10a.Request.from_consumer_and_token')
-    def test_multiple_values_for_a_key(self, mockReqConstructor, mockHttpRequest):
+    @mock.patch('oauth2.Request.from_consumer_and_token')
+    def test_multiple_values_for_a_key(self, mockReqConstructor,
+                                       mockHttpRequest):
         client = oauth.Client(self.consumer, None)
 
-        request = oauth.Request("GET", "http://example.com/fetch.php", parameters={'multi': ['1', '2']})
+        request = oauth.Request("GET", "http://example.com/fetch.php",
+                                parameters={'multi': ['1', '2']})
         mockReqConstructor.return_value = request
 
         client.request('http://whatever', 'POST', body='multi=1&multi=2')
 
         self.assertEqual(mockReqConstructor.call_count, 1)
-        self.assertEqual(mockReqConstructor.call_args[1]['parameters'], {'multi': ['1', '2']})
+        self.assertEqual(mockReqConstructor.call_args[1]['parameters'],
+                         {'multi': ['1', '2']})
 
         self.assertTrue('multi=1' in mockHttpRequest.call_args[1]['body'])
         self.assertTrue('multi=2' in mockHttpRequest.call_args[1]['body'])
@@ -1649,5 +1708,6 @@ class TestClient(unittest.TestCase):
 if __name__ == "__main__":
     import os
     import sys
-    sys.path[0:0] = [os.path.join(os.path.dirname(__file__), ".."),]
+
+    sys.path[0:0] = [os.path.join(os.path.dirname(__file__), ".."), ]
     unittest.main()
