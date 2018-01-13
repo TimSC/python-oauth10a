@@ -3,8 +3,8 @@ from __future__ import print_function
 from setuptools import setup, find_packages
 import os, re
 
-PKG='oauth2'
-VERSIONFILE = os.path.join('oauth2', '_version.py')
+PKG='oauth10a'
+VERSIONFILE = os.path.join('oauth10a', '_version.py')
 verstr = "unknown"
 try:
     verstrline = open(VERSIONFILE, "rt").read()
@@ -29,9 +29,9 @@ else:
 setup(name=PKG,
       version=verstr,
       description="library for OAuth version 1.9",
-      author="Joe Stump",
-      author_email="joe@simplegeo.com",
-      url="http://github.com/joestump/python-oauth2",
+      author="Tim Sheerman-Chase",
+      author_email="orders2008@sheerman-chase.org.uk",
+      url="https://github.com/TimSC/python-oauth10a",
       classifiers=[
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 2",
@@ -52,3 +52,4 @@ setup(name=PKG,
       zip_safe = True,
       test_suite="tests",
       tests_require=['mock'])
+

@@ -15,7 +15,7 @@ PLATFORM    = $(shell $(PYTHON) -c "from pkg_resources import get_build_platform
 OS         := $(shell uname)
 EGG        := $(shell $(SETUP) --fullname)-py$(PYVERS).egg
 SDIST      := $(shell $(SETUP) --fullname).tar.gs
-SRCDIR     := oauth2
+SRCDIR     := oauth10a
 SOURCES    := $(shell find $(SRCDIR) -type f -name \*.py -not -name 'test_*')
 TESTS      := $(shell find $(SRCDIR) -type f -name test_\*.py)
 COVERED    := $(SOURCES)
@@ -45,10 +45,10 @@ debian/changelog:
 deb: debian/changelog
 	test -d dist/deb || mkdir -p dist/deb
 	dpkg-buildpackage -r$(ROOTCMD) -k$(SIGN_KEY)
-	mv ../python-oauth2_* dist/deb
+	mv ../python-oauth10a_* dist/deb
 
 test:
-	$(SETUP) test --with-coverage --cover-package=oauth2
+	$(SETUP) test --with-coverage --cover-package=oauth10a
 
 sdist:
 	python setup.py sdist

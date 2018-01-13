@@ -1,9 +1,7 @@
 ![Licence MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)
 
-## Note: This library implements OAuth 1.0 and *not OAuth 2.0*. 
-
 # Overview
-python-oauth2 is a python oauth library fully compatible with python versions: 2.6, 2.7, 3.3 and 3.4. This library is depended on by many other downstream packages such as Flask-Oauth.
+python-oauth10a is a python OAuth 1.0a library fully compatible with python versions: 2.6, 2.7, 3.3 and 3.4. This library is depended on by many other downstream packages such as Flask-Oauth.
 
 # Installing
 
@@ -23,7 +21,7 @@ You can run tests using the following at the command line:
 
 # History
 
-This code was originally forked from [Leah Culver and Andy Smith's oauth.py code](http://github.com/leah/python-oauth/). Some of the tests come from a [fork by Vic Fryzel](http://github.com/shellsage/python-oauth), while a revamped Request class and more tests were merged in from [Mark Paschal's fork](http://github.com/markpasc/python-oauth). Forked again from [joestump's python-oauth2](https://github.com/joestump/python-oauth2). A number of notable differences exist between this code and its forefathers:
+This code was originally forked from [Leah Culver and Andy Smith's oauth.py code](http://github.com/leah/python-oauth/). Some of the tests come from a [fork by Vic Fryzel](http://github.com/shellsage/python-oauth), while a revamped Request class and more tests were merged in from [Mark Paschal's fork](http://github.com/markpasc/python-oauth). Forked again from [joestump's python-oauth2](https://github.com/joestump/python-oauth2) which seems to be unmaintained. A number of notable differences exist between this code and its forefathers:
 
 * 100% unit test coverage.
 * The <code>DataStore</code> object has been completely ripped out. While creating unit tests for the library I found several substantial bugs with the implementation and confirmed with Andy Smith that it was never fully baked.
