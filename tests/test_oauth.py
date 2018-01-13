@@ -1269,7 +1269,7 @@ class SignatureMethod_Bad(oauth.SignatureMethod):
 
 class TestServer(unittest.TestCase):
     def setUp(self):
-        url = "http://sp.example.com/"
+        self.url = "http://sp.example.com/"
 
         params = {
             'oauth_version': "1.0",
@@ -1286,7 +1286,7 @@ class TestServer(unittest.TestCase):
 
         params['oauth_token'] = self.token.key
         params['oauth_consumer_key'] = self.consumer.key
-        self.request = oauth.Request(method="GET", url=url, parameters=params)
+        self.request = oauth.Request(method="GET", url=self.url, parameters=params)
 
         signature_method = oauth.SignatureMethod_HMAC_SHA1()
         self.request.sign_request(signature_method, self.consumer, self.token)
@@ -1329,8 +1329,20 @@ class TestServer(unittest.TestCase):
         self.assertEqual(parameters['foo'], 59)
         self.assertEqual(parameters['multi'], ['FOO', 'BAR'])
 
+    def test_verify_request_query_string(self):
+        server = oauth.Server()
+        server.add_signature_method(oauth.SignatureMethod_HMAC_SHA1())
+
+        signature_method = oauth.SignatureMethod_HMAC_SHA1()
+        request2 = oauth.Request.from_request("GET", self.url, query_string=urlencode(dict(self.request)))
+        request2.sign_request(signature_method, self.consumer, self.token)
+        request3 = oauth.Request.from_request("GET", self.url, query_string=urlencode(dict(request2)))        
+
+        parameters = server.verify_request(request3, self.consumer,
+                                           self.token)
+
     def test_verify_request_missing_signature(self):
-        from oauth2 import MissingSignature
+        from oauth10a import MissingSignature
         server = oauth.Server()
         server.add_signature_method(oauth.SignatureMethod_PLAINTEXT())
         del self.request['oauth_signature_method']
@@ -1679,7 +1691,7 @@ class TestClient(unittest.TestCase):
         client.request(uri, 'GET')
 
     @mock.patch('httplib2.Http.request')
-    @mock.patch('oauth2.Request.from_consumer_and_token')
+    @mock.patch('oauth10a.Request.from_consumer_and_token')
     def test_multiple_values_for_a_key(self, mockReqConstructor,
                                        mockHttpRequest):
         client = oauth.Client(self.consumer, None)

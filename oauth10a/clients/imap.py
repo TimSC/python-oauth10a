@@ -30,14 +30,14 @@ class IMAP4_SSL(imaplib.IMAP4_SSL):
     """IMAP wrapper for imaplib.IMAP4_SSL that implements XOAUTH."""
 
     def authenticate(self, url, consumer, token):
-        if consumer is not None and not isinstance(consumer, oauth2.Consumer):
+        if consumer is not None and not isinstance(consumer, oauth10a.Consumer):
             raise ValueError("Invalid consumer.")
 
-        if token is not None and not isinstance(token, oauth2.Token):
+        if token is not None and not isinstance(token, oauth10a.Token):
             raise ValueError("Invalid token.")
 
         imaplib.IMAP4_SSL.authenticate(
-            self, 'XOAUTH', lambda x: oauth2.build_xoauth_string(url,
+            self, 'XOAUTH', lambda x: oauth10a.build_xoauth_string(url,
                                                                  consumer,
                                                                  token)
         )

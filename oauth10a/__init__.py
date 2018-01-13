@@ -509,6 +509,8 @@ class Request(dict):
             # section 4.1.1 "OAuth Consumers MUST NOT include an
             # oauth_body_hash parameter on requests with form-encoded
             # request bodies."
+            if not self.body:
+               self.body = ''.encode('utf-8')
             self['oauth_body_hash'] = base64.b64encode(
                 sha1(self.body).digest()
             )
@@ -683,7 +685,7 @@ class Client(httplib2.Http):
                                                   DEFAULT_POST_CONTENT_TYPE)
 
         is_form_encoded = \
-            headers.get('Content-Type') == 'application/x-www-form-urlencoded'
+            headers.get('Content-Type', '').startswith('application/x-www-form-urlencoded')
 
         if is_form_encoded and body:
             parameters = parse_qs(body)
@@ -784,6 +786,8 @@ class Server(object):
         signature = request.get('oauth_signature')
         if signature is None:
             raise MissingSignature('Missing oauth_signature.')
+        if isinstance(signature, str):
+            signature = signature.encode('ascii', 'ignore')
 
         # Validate the signature.
         valid = signature_method.check(request, consumer, token, signature)
