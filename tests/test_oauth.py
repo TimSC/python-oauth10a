@@ -1708,8 +1708,8 @@ class TestClient(unittest.TestCase):
             req = oauth.Request.from_consumer_and_token(self.consumer, None,
                                                         http_method='GET', http_url=uri, parameters={})
             req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), self.consumer, None)
-            expected = parse_qsl(urlparse.urlparse(req.to_url()).query)
-            actual = parse_qsl(urlparse.urlparse(ur).query)
+            expected = parse_qsl(urlparse(req.to_url()).query)
+            actual = parse_qsl(urlparse(ur).query)
             self.failUnlessEqual(len(expected), len(actual))
             actual = dict(actual)
             for key, value in expected:
@@ -1740,8 +1740,8 @@ class TestClient(unittest.TestCase):
             req = oauth.Request.from_consumer_and_token(self.consumer, None,
                                                         http_method='GET', http_url=uri, parameters={})
             req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), self.consumer, None)
-            expected = parse_qsl(urlparse.urlparse(req.to_url()).query)
-            actual = parse_qsl(urlparse.urlparse(ur).query)
+            expected = parse_qsl(urlparse(req.to_url()).query)
+            actual = parse_qsl(urlparse(ur).query)
             self.failUnlessEqual(len(expected), len(actual))
             actual = dict(actual)
             for key, value in expected:
