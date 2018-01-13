@@ -383,7 +383,7 @@ class Request(dict):
 
             # Normalized URL excludes params, query, and fragment.
             self.normalized_url = urlunsplit(
-                (scheme, netloc, path, None, None)
+                (scheme.lower(), netloc.lower(), path, None, None)
             )
         else:
             self.normalized_url = None
