@@ -392,7 +392,7 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
         # https://github.com/joestump/python-oauth2/issues/29
         url = 'HTTP://Example.com/resource'
         req = oauth.Request("GET", url)
-        self.assertEquals(req.normalized_url, "http://example.com/resource")
+        self.assertEqual(req.normalized_url, "http://example.com/resource")
 
     def test_bad_url(self):
         request = oauth.Request()
@@ -481,12 +481,12 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
         params['nonasciithing'] = params['nonasciithing'].encode('utf-8')
         exp = urlparse("%s?%s" % (url, urlencode(params)))
 
-        self.assertEquals(exp.netloc, res.netloc)
-        self.assertEquals(exp.path, res.path)
+        self.assertEqual(exp.netloc, res.netloc)
+        self.assertEqual(exp.path, res.path)
 
         a = parse_qs(exp.query)
         b = parse_qs(res.query)
-        self.assertEquals(a, b)
+        self.assertEqual(a, b)
 
     def test_to_url_works_with_non_ascii_parameters(self):
 
@@ -523,8 +523,8 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
             'oauth_consumer': 'asdfasdfasdf'
         }
 
-        self.assertEquals("http://example.com", host)
-        self.assertEquals(expected_params, params)
+        self.assertEqual("http://example.com", host)
+        self.assertEqual(expected_params, params)
 
     def test_to_header(self):
         realm = "http://sp.example.com/"
@@ -1705,24 +1705,24 @@ class TestClient(unittest.TestCase):
         random_result = random.randint(1,100)
 
         def mockrequest(cl, ur, **kw):
-            self.failUnless(cl is client)
-            self.failUnlessEqual(frozenset(kw.keys()), frozenset(['method', 'body', 'redirections', 'connection_type', 'headers']))
-            self.failUnlessEqual(kw['body'], None)
-            self.failUnlessEqual(kw['connection_type'], None)
-            self.failUnlessEqual(kw['method'], 'GET')
-            self.failUnlessEqual(kw['redirections'], httplib2.DEFAULT_MAX_REDIRECTS)
-            self.failUnless(isinstance(kw['headers'], dict))
+            self.assertTrue(cl is client)
+            self.assertEqual(frozenset(kw.keys()), frozenset(['method', 'body', 'redirections', 'connection_type', 'headers']))
+            self.assertEqual(kw['body'], None)
+            self.assertEqual(kw['connection_type'], None)
+            self.assertEqual(kw['method'], 'GET')
+            self.assertEqual(kw['redirections'], httplib2.DEFAULT_MAX_REDIRECTS)
+            self.assertTrue(isinstance(kw['headers'], dict))
 
             req = oauth.Request.from_consumer_and_token(self.consumer, None,
                                                         http_method='GET', http_url=uri, parameters={})
             req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), self.consumer, None)
             expected = parse_qsl(urlparse(req.to_url()).query)
             actual = parse_qsl(urlparse(ur).query)
-            self.failUnlessEqual(len(expected), len(actual))
+            self.assertEqual(len(expected), len(actual))
             actual = dict(actual)
             for key, value in expected:
                 if key not in ('oauth_signature', 'oauth_nonce', 'oauth_timestamp'):
-                    self.failUnlessEqual(actual[key], value)
+                    self.assertEqual(actual[key], value)
 
             return random_result
 
@@ -1737,24 +1737,24 @@ class TestClient(unittest.TestCase):
         random_result = random.randint(1,100)
 
         def mockrequest(cl, ur, **kw):
-            self.failUnless(cl is client)
-            self.failUnlessEqual(frozenset(kw.keys()), frozenset(['method', 'body', 'redirections', 'connection_type', 'headers']))
-            self.failUnlessEqual(kw['body'], None)
-            self.failUnlessEqual(kw['connection_type'], None)
-            self.failUnlessEqual(kw['method'], 'GET')
-            self.failUnlessEqual(kw['redirections'], httplib2.DEFAULT_MAX_REDIRECTS)
-            self.failUnless(isinstance(kw['headers'], dict))
+            self.assertTrue(cl is client)
+            self.assertEqual(frozenset(kw.keys()), frozenset(['method', 'body', 'redirections', 'connection_type', 'headers']))
+            self.assertEqual(kw['body'], None)
+            self.assertEqual(kw['connection_type'], None)
+            self.assertEqual(kw['method'], 'GET')
+            self.assertEqual(kw['redirections'], httplib2.DEFAULT_MAX_REDIRECTS)
+            self.assertTrue(isinstance(kw['headers'], dict))
 
             req = oauth.Request.from_consumer_and_token(self.consumer, None,
                                                         http_method='GET', http_url=uri, parameters={})
             req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), self.consumer, None)
             expected = parse_qsl(urlparse(req.to_url()).query)
             actual = parse_qsl(urlparse(ur).query)
-            self.failUnlessEqual(len(expected), len(actual))
+            self.assertEqual(len(expected), len(actual))
             actual = dict(actual)
             for key, value in expected:
                 if key not in ('oauth_signature', 'oauth_nonce', 'oauth_timestamp'):
-                    self.failUnlessEqual(actual[key], value)
+                    self.assertEqual(actual[key], value)
 
             return random_result
 

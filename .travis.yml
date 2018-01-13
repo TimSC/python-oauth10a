@@ -9,6 +9,6 @@ install:
   - pip install -r requirements.txt
   - pip install codecov pytest-cov
 script:
-  - py.test --cov=oauth2
+  - py.test --cov=oauth10a
 after_success:
   - codecov
