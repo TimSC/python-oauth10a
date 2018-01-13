@@ -1,9 +1,15 @@
-![Licence MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)
+[![Build Status](https://travis-ci.org/TimSC/python-oauth10a.svg?branch=master)](https://travis-ci.org/TimSC/python-oauth10a) ![Licence MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)
 
 # Overview
 python-oauth10a is a python OAuth 1.0a library fully compatible with python versions: 2.6, 2.7, 3.3 and 3.4. This library is depended on by many other downstream packages such as Flask-Oauth.
 
 # Installing
+
+From pypi:
+
+    $ pip install oauth10a
+
+From source:
 
     $ python setup.py install
     
