@@ -28,7 +28,12 @@ or find one that works with your web framework.
 
 import httplib
 import time
-import oauth.oauth as oauth
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
+
+import oauth10a as oauth
 
 # settings for the local test consumer
 SERVER = 'localhost'
@@ -48,7 +53,7 @@ CONSUMER_SECRET = 'secret'
 
 
 # example client using httplib with headers
-class SimpleOAuthClient(oauth.OAuthClient):
+class SimpleOAuthClient(object):
     def __init__(self, server, port=httplib.HTTP_PORT, request_token_url='',
                  access_token_url='', authorization_url=''):
         self.server = server
@@ -62,11 +67,11 @@ class SimpleOAuthClient(oauth.OAuthClient):
     def fetch_request_token(self, oauth_request):
         # via headers
         # -> OAuthToken
-        self.connection.request(oauth_request.http_method,
+        self.connection.request(oauth_request.method,
                                 self.request_token_url,
                                 headers=oauth_request.to_header())
         response = self.connection.getresponse()
-        return oauth.OAuthToken.from_string(response.read())
+        return oauth.Token.from_string(response.read())
 
     def fetch_access_token(self, oauth_request):
         # via headers
@@ -75,7 +80,7 @@ class SimpleOAuthClient(oauth.OAuthClient):
                                 self.access_token_url,
                                 headers=oauth_request.to_header())
         response = self.connection.getresponse()
-        return oauth.OAuthToken.from_string(response.read())
+        return oauth.Token.from_string(response.read())
 
     def authorize_token(self, oauth_request):
         # via url
@@ -101,19 +106,19 @@ def run_example():
     print('** OAuth Python Library Example **')
     client = SimpleOAuthClient(SERVER, PORT, REQUEST_TOKEN_URL,
                                ACCESS_TOKEN_URL, AUTHORIZATION_URL)
-    consumer = oauth.OAuthConsumer(CONSUMER_KEY, CONSUMER_SECRET)
-    signature_method_plaintext = oauth.OAuthSignatureMethod_PLAINTEXT()
-    signature_method_hmac_sha1 = oauth.OAuthSignatureMethod_HMAC_SHA1()
+    consumer = oauth.Consumer(CONSUMER_KEY, CONSUMER_SECRET)
+    signature_method_plaintext = oauth.SignatureMethod_PLAINTEXT()
+    signature_method_hmac_sha1 = oauth.SignatureMethod_HMAC_SHA1()
     pause()
 
     # get request token
     print('* Obtain a request token ...')
     pause()
-    oauth_request = oauth.OAuthRequest.from_consumer_and_token(
-        consumer, callback=CALLBACK_URL, http_url=client.request_token_url)
+    oauth_request = oauth.Request.from_consumer_and_token(
+        consumer, http_url=client.request_token_url)
     oauth_request.sign_request(signature_method_plaintext, consumer, None)
     print('REQUEST (via headers)')
-    print('parameters: %s' % str(oauth_request.parameters))
+    print('parameters: %s' % str(dict(oauth_request)))
     pause()
     token = client.fetch_request_token(oauth_request)
     print('GOT')
@@ -124,7 +129,7 @@ def run_example():
 
     print('* Authorize the request token ...')
     pause()
-    oauth_request = oauth.OAuthRequest.from_token_and_callback(
+    oauth_request = oauth.Request.from_token_and_callback(
         token=token, http_url=client.authorization_url)
     print('REQUEST (via url query string)')
     print('parameters: %s' % str(oauth_request.parameters))
@@ -145,7 +150,7 @@ def run_example():
     # get access token
     print('* Obtain an access token ...')
     pause()
-    oauth_request = oauth.OAuthRequest.from_consumer_and_token(
+    oauth_request = oauth.Request.from_consumer_and_token(
         consumer, token=token, verifier=verifier,
         http_url=client.access_token_url)
     oauth_request.sign_request(signature_method_plaintext, consumer, token)
@@ -163,7 +168,7 @@ def run_example():
     pause()
     parameters = {'file': 'vacation.jpg',
                   'size': 'original'}  # resource specific params
-    oauth_request = oauth.OAuthRequest.from_consumer_and_token(
+    oauth_request = oauth.Request.from_consumer_and_token(
         consumer,
         token=token,
         http_method='POST',

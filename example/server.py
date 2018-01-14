@@ -24,8 +24,12 @@ THE SOFTWARE.
 
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import urllib
+import os
+import sys
 
-import oauth.oauth as oauth
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
+
+import oauth10a as oauth
 
 # fake urls for the test server
 REQUEST_TOKEN_URL = 'https://photos.example.net/request_token'
@@ -38,11 +42,11 @@ VERIFIER = 'verifier'
 
 
 # example store for one of each thing
-class MockOAuthDataStore(oauth.OAuthDataStore):
+class MockOAuthDataStore(dict):
     def __init__(self):
-        self.consumer = oauth.OAuthConsumer('key', 'secret')
-        self.request_token = oauth.OAuthToken('requestkey', 'requestsecret')
-        self.access_token = oauth.OAuthToken('accesskey', 'accesssecret')
+        self.consumer = oauth.Consumer('key', 'secret')
+        self.request_token = oauth.Token('requestkey', 'requestsecret')
+        self.access_token = oauth.Token('accesskey', 'accesssecret')
         self.nonce = 'nonce'
         self.verifier = VERIFIER
 
@@ -102,11 +106,11 @@ class MockOAuthDataStore(oauth.OAuthDataStore):
 
 class RequestHandler(BaseHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        self.oauth_server = oauth.OAuthServer(MockOAuthDataStore())
+        self.oauth_server = oauth.Server(MockOAuthDataStore())
         self.oauth_server.add_signature_method(
-            oauth.OAuthSignatureMethod_PLAINTEXT())
+            oauth.SignatureMethod_PLAINTEXT())
         self.oauth_server.add_signature_method(
-            oauth.OAuthSignatureMethod_HMAC_SHA1())
+            oauth.SignatureMethod_HMAC_SHA1())
         BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
 
     # example way to send an oauth error
@@ -133,7 +137,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 pass
 
         # construct the oauth request from the request parameters
-        oauth_request = oauth.OAuthRequest.from_request(self.command,
+        oauth_request = oauth.Request.from_request(self.command,
                                                         self.path,
                                                         headers=self.headers,
                                                         query_string=postdata)
@@ -148,7 +152,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 # return the token
                 self.wfile.write(token.to_string())
-            except oauth.OAuthError as err:
+            except oauth.Error as err:
                 self.send_oauth_error(err)
             return
 
@@ -165,7 +169,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 # return the callback url (to show server has it)
                 self.wfile.write(token.get_callback_url())
-            except oauth.OAuthError as err:
+            except oauth.Error as err:
                 self.send_oauth_error(err)
             return
 
@@ -179,7 +183,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 # return the token
                 self.wfile.write(token.to_string())
-            except oauth.OAuthError as err:
+            except oauth.Error as err:
                 self.send_oauth_error(err)
             return
 
@@ -194,7 +198,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 # return the extra parameters - just for something to return
                 self.wfile.write(str(params))
-            except oauth.OAuthError as err:
+            except oauth.Error as err:
                 self.send_oauth_error(err)
             return
 
