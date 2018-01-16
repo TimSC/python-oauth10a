@@ -979,7 +979,7 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
 
         # And if it is a utf-8-encoded-then-percent-encoded non-ascii
         # thing, we'll decode it and use it.
-        url = "http://sp.example.com/%E2%80%99"
+        url = b"http://sp.example.com/%E2%80%99"
         req = oauth.Request(method="GET", url=url, parameters=params)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, None)
         self.assertReallyEqual(req['oauth_signature'],
@@ -995,7 +995,7 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
                           parameters=params)
 
         # And if they pass a unicode, then we'll use it.
-        params['non_oauth_thing'] = _U2019
+        params['non_oauth_thing'] = "’"
         req = oauth.Request(method="GET", url=url, parameters=params)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, None)
         self.assertReallyEqual(req['oauth_signature'],
@@ -1003,14 +1003,14 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
 
         # And if it is a utf-8-encoded non-ascii thing, we'll decode
         # it and use it.
-        params['non_oauth_thing'] = b'\xc2\xae'
+        params['non_oauth_thing'] = "®".encode("utf-8")
         req = oauth.Request(method="GET", url=url, parameters=params)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, None)
         self.assertReallyEqual(req['oauth_signature'],
                                b'pqOCu4qvRTiGiXB8Z61Jsey0pMM=')
 
         # Also if there are non-utf8 bytes in the query args.
-        url = b"http://sp.example.com/?q=\x92"  # cp1252
+        url = "http://sp.example.com/?q=’".encode("cp1252")
         self.assertRaises(TypeError, oauth.Request, method="GET", url=url,
                           parameters=params)
 
