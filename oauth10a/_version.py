@@ -1,3 +1,7 @@
+﻿# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+from __future__ import print_function
+
 # This is the version of this source code.
 manual_verstr = "1.9"
 
