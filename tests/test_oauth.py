@@ -23,6 +23,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
+from __future__ import unicode_literals
+from __future__ import print_function
 import sys
 import random
 import time
@@ -465,7 +467,7 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
         url = "http://sp.example.com/"
 
         params = {
-            'nonasciithing': u'q\xbfu\xe9 ,aasp u?..a.s',
+            'nonasciithing': 'q¿ué ,aasp u?..a.s',
             'oauth_version': "1.0",
             'oauth_nonce': "4572616e48616d6d65724c61686176",
             'oauth_timestamp': "137131200",
@@ -967,7 +969,7 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
         if not PY3:
             # If someone passes a sequence of bytes which is not ascii for
             # url, we'll raise an exception as early as possible.
-            url = "http://sp.example.com/\x92"  # It's actually cp1252-encoding
+            url = u"http://sp.example.com/’".encode("cp1252")
             self.assertRaises(TypeError, oauth.Request, method="GET", url=url,
                               parameters=params)
 

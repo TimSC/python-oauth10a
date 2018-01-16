@@ -430,27 +430,14 @@ class Request(dict):
         """Serialize as a URL for a GET request."""
         base_url = urlparse(self.url)
 
-        if PY3:
-            query = parse_qs(base_url.query)
-            for k, v in self.items():
-                query.setdefault(k, []).append(to_utf8_optional_iterator(v))
-            scheme = base_url.scheme
-            netloc = base_url.netloc
-            path = base_url.path
-            params = base_url.params
-            fragment = base_url.fragment
-        else:
-            query = parse_qs(to_utf8(base_url.query))
-            for k, v in self.items():
-                query.setdefault(to_utf8(k), []).append(
-                    to_utf8_optional_iterator(v)
-                )
-
-            scheme = to_utf8(base_url.scheme)
-            netloc = to_utf8(base_url.netloc)
-            path = to_utf8(base_url.path)
-            params = to_utf8(base_url.params)
-            fragment = to_utf8(base_url.fragment)
+        query = parse_qs(base_url.query)
+        for k, v in self.items():
+            query.setdefault(k, []).append(to_utf8_optional_iterator(v))
+        scheme = base_url.scheme
+        netloc = base_url.netloc
+        path = base_url.path
+        params = base_url.params
+        fragment = base_url.fragment
 
         url = (scheme, netloc, path, params, urlencode(query, True), fragment)
         return urlunparse(url)
