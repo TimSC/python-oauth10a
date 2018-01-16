@@ -990,7 +990,7 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
 
         # If someone passes a sequence of bytes which is not ascii in
         # params, we'll raise an exception as early as possible.
-        params['non_oauth_thing'] = b'\xae',  # It's actually cp1252-encoding...
+        params['non_oauth_thing'] = "®".encode("cp1252")
         self.assertRaises(TypeError, oauth.Request, method="GET", url=url,
                           parameters=params)
 
