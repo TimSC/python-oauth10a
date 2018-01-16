@@ -565,7 +565,7 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
         realm = "http://sp.example.com/"
 
         params = {
-            'nonasciithing': u('q\xbfu\xe9 ,aasp u?..a.s', 'latin1'),
+            'nonasciithing': 'q¿ué ,aasp u?..a.s',
             'oauth_version': "1.0",
             'oauth_nonce': "4572616e48616d6d65724c61686176",
             'oauth_timestamp': "137131200",
@@ -579,14 +579,14 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
 
         self.assertReallyEqual(
             req.to_postdata(),
-            ('nonasciithing=q%C2%BFu%C3%A9%20%2Caasp%20u%3F..a.s'
-             '&oauth_consumer_key=0685bd9184jfhq22'
-             '&oauth_nonce=4572616e48616d6d65724c61686176'
-             '&oauth_signature=wOJIO9A2W5mFwDgiDvZbTSMK%252FPY%253D'
-             '&oauth_signature_method=HMAC-SHA1'
-             '&oauth_timestamp=137131200'
-             '&oauth_token=ad180jjd733klru7'
-             '&oauth_version=1.0'
+            (b'nonasciithing=q%C2%BFu%C3%A9%20%2Caasp%20u%3F..a.s'
+             b'&oauth_consumer_key=0685bd9184jfhq22'
+             b'&oauth_nonce=4572616e48616d6d65724c61686176'
+             b'&oauth_signature=wOJIO9A2W5mFwDgiDvZbTSMK%252FPY%253D'
+             b'&oauth_signature_method=HMAC-SHA1'
+             b'&oauth_timestamp=137131200'
+             b'&oauth_token=ad180jjd733klru7'
+             b'&oauth_version=1.0'
              ))
 
     def test_to_postdata(self):
@@ -608,9 +608,8 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
         flat = [('multi', 'FOO'), ('multi', 'BAR')]
         del params['multi']
         flat.extend(params.items())
-        kf = lambda x: x[0]
         self.assertEqual(
-            sorted(flat, key=lambda x: x[0]),
+            [(k.encode('ascii'), v.encode('ascii')) for k, v in sorted(flat, key=lambda x: x[0])],
             sorted(parse_qsl(req.to_postdata()), key=lambda x: x[0]))
 
     def test_to_url(self):
@@ -1780,8 +1779,8 @@ class TestClient(unittest.TestCase):
         self.assertEqual(mockReqConstructor.call_args[1]['parameters'],
                          {'multi': ['1', '2']})
 
-        self.assertTrue('multi=1' in mockHttpRequest.call_args[1]['body'])
-        self.assertTrue('multi=2' in mockHttpRequest.call_args[1]['body'])
+        self.assertTrue(b'multi=1' in mockHttpRequest.call_args[1]['body'])
+        self.assertTrue(b'multi=2' in mockHttpRequest.call_args[1]['body'])
 
     def test_form_encoded_post_with_charset_in_content_type(self):
         client = oauth.Client(self.consumer, None)
