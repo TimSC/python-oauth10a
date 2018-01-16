@@ -966,12 +966,12 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
 
         # If someone passes a sequence of bytes which is not ascii for
         # url, we'll raise an exception as early as possible.
-        url = u"http://sp.example.com/’".encode("cp1252")
+        url = "http://sp.example.com/’".encode("cp1252")
         self.assertRaises(TypeError, oauth.Request, method="GET", url=url,
                           parameters=params)
 
         # And if they pass an unicode, then we'll use it.
-        url = u('http://sp.example.com/') + _U2019
+        url = 'http://sp.example.com/’'
         req = oauth.Request(method="GET", url=url, parameters=params)
         req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), con, None)
         self.assertReallyEqual(req['oauth_signature'],
