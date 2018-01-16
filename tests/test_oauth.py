@@ -964,12 +964,11 @@ class TestRequest(unittest.TestCase, ReallyEqualMixin):
             'oauth_consumer_key': con.key
         }
 
-        if not PY3:
-            # If someone passes a sequence of bytes which is not ascii for
-            # url, we'll raise an exception as early as possible.
-            url = u"http://sp.example.com/’".encode("cp1252")
-            self.assertRaises(TypeError, oauth.Request, method="GET", url=url,
-                              parameters=params)
+        # If someone passes a sequence of bytes which is not ascii for
+        # url, we'll raise an exception as early as possible.
+        url = u"http://sp.example.com/’".encode("cp1252")
+        self.assertRaises(TypeError, oauth.Request, method="GET", url=url,
+                          parameters=params)
 
         # And if they pass an unicode, then we'll use it.
         url = u('http://sp.example.com/') + _U2019
