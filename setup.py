@@ -30,7 +30,7 @@ else:
 
 setup(name=PKG,
       version=verstr,
-      description="library for OAuth 1.0a version 1.9",
+      description="library for OAuth 1.0a",
       author="Tim Sheerman-Chase",
       author_email="orders2008@sheerman-chase.org.uk",
       url="https://github.com/TimSC/python-oauth10a",
