@@ -76,7 +76,7 @@ class SimpleOAuthClient(object):
     def fetch_access_token(self, oauth_request):
         # via headers
         # -> OAuthToken
-        self.connection.request(oauth_request.http_method,
+        self.connection.request(oauth_request.method,
                                 self.access_token_url,
                                 headers=oauth_request.to_header())
         response = self.connection.getresponse()
@@ -85,7 +85,7 @@ class SimpleOAuthClient(object):
     def authorize_token(self, oauth_request):
         # via url
         # -> typically just some okay response
-        self.connection.request(oauth_request.http_method,
+        self.connection.request(oauth_request.method,
                                 oauth_request.to_url())
         response = self.connection.getresponse()
         return response.read()
@@ -132,7 +132,7 @@ def run_example():
     oauth_request = oauth.Request.from_token_and_callback(
         token=token, http_url=client.authorization_url)
     print('REQUEST (via url query string)')
-    print('parameters: %s' % str(oauth_request.parameters))
+    print('parameters: %s' % str(dict(oauth_request)))
     pause()
     # this will actually occur only on some callback
     response = client.authorize_token(oauth_request)
@@ -150,12 +150,13 @@ def run_example():
     # get access token
     print('* Obtain an access token ...')
     pause()
+    token.verifier = verifier
     oauth_request = oauth.Request.from_consumer_and_token(
-        consumer, token=token, verifier=verifier,
+        consumer, token=token,
         http_url=client.access_token_url)
     oauth_request.sign_request(signature_method_plaintext, consumer, token)
     print('REQUEST (via headers)')
-    print('parameters: %s' % str(oauth_request.parameters))
+    print('parameters: %s' % str(dict(oauth_request)))
     pause()
     token = client.fetch_access_token(oauth_request)
     print('GOT')
@@ -177,7 +178,7 @@ def run_example():
     )
     oauth_request.sign_request(signature_method_hmac_sha1, consumer, token)
     print('REQUEST (via post body)')
-    print('parameters: %s' % str(oauth_request.parameters))
+    print('parameters: %s' % str(dict(oauth_request)))
     pause()
     params = client.access_resource(oauth_request)
     print('GOT')

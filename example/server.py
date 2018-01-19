@@ -191,8 +191,10 @@ class RequestHandler(BaseHTTPRequestHandler):
         if self.path.startswith(RESOURCE_URL):
             try:
                 # verify the request has been oauth authorized
-                consumer, token, params = self.oauth_server.verify_request(
-                    oauth_request)
+                consumer = self.oauth_server._get_consumer(oauth_request)
+                token = self.oauth_server._get_token(oauth_request, 'access')
+                params = self.oauth_server.verify_request(
+                    oauth_request, consumer, token)
                 # send okay response
                 self.send_response(200, 'OK')
                 self.end_headers()

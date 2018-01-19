@@ -723,12 +723,49 @@ class Server(object):
     version = OAUTH_VERSION
     signature_methods = None
 
-    def __init__(self, signature_methods=None):
+    def __init__(self, data_store=None, signature_methods=None):
         self.signature_methods = signature_methods or {}
+        self.data_store = data_store
 
     def add_signature_method(self, signature_method):
         self.signature_methods[signature_method.name] = signature_method
         return self.signature_methods
+
+    def fetch_request_token(self, oauth_request):
+        """Processes a request_token request and returns the
+        request token on success.
+        """
+        try:
+            # Get the request token for authorization.
+            token = self._get_token(oauth_request, 'request')
+        except Error:
+            # No token required for the initial token request.
+            version = self._get_version(oauth_request)
+            consumer = self._get_consumer(oauth_request)
+            try:
+                callback = self.get_callback(oauth_request)
+            except Error:
+                callback = None # 1.0, no callback specified.
+            self._check_signature(oauth_request, consumer, None)
+            # Fetch a new token.
+            token = self.data_store.fetch_request_token(consumer, callback)
+        return token
+
+    def fetch_access_token(self, oauth_request):
+        """Processes an access_token request and returns the
+        access token on success.
+        """
+        version = self._get_version(oauth_request)
+        consumer = self._get_consumer(oauth_request)
+        try:
+            verifier = self._get_verifier(oauth_request)
+        except Error:
+            verifier = None
+        # Get the request token.
+        token = self._get_token(oauth_request, 'request')
+        self._check_signature(oauth_request, consumer, token)
+        new_token = self.data_store.fetch_access_token(consumer, token, verifier)
+        return new_token
 
     def verify_request(self, request, consumer, token):
         """Verifies an api call and checks all the parameters."""
@@ -737,6 +774,14 @@ class Server(object):
         self._check_signature(request, consumer, token)
         parameters = request.get_nonoauth_parameters()
         return parameters
+
+    def authorize_token(self, token, user):
+        """Authorize a request token."""
+        return self.data_store.authorize_request_token(token, user)
+
+    def get_callback(self, oauth_request):
+        """Get the callback URL."""
+        return oauth_request.get_parameter('oauth_callback')
 
     def build_authenticate_header(self, realm=''):
         """Optional support for the authenticate header."""
@@ -757,6 +802,21 @@ class Server(object):
 
         return version
 
+    def _get_consumer(self, oauth_request):
+        consumer_key = oauth_request.get_parameter('oauth_consumer_key')
+        consumer = self.data_store.lookup_consumer(consumer_key)
+        if not consumer:
+            raise OAuthError('Invalid consumer.')
+        return consumer
+
+    def _get_token(self, oauth_request, token_type='access'):
+        """Try to find the token for the provided request token key."""
+        token_field = oauth_request.get_parameter('oauth_token')
+        token = self.data_store.lookup_token(token_type, token_field)
+        if not token:
+            raise OAuthError('Invalid %s token: %s' % (token_type, token_field))
+        return token
+
     def _get_signature_method(self, request):
         """Figure out the signature with some defaults."""
         signature_method = request.get('oauth_signature_method')
@@ -771,6 +831,9 @@ class Server(object):
             raise Error('Signature method %s not supported try one of the '
                         'following: %s'
                         % (signature_method, signature_method_names))
+
+    def _get_verifier(self, oauth_request):
+        return oauth_request.get_parameter('oauth_verifier')
 
     def _check_signature(self, request, consumer, token):
         timestamp, nonce = request._get_timestamp_nonce()
