@@ -22,10 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+import sys
+PY3 = sys.version_info >= (3,)
+
+if PY3:
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+else:
+    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import urllib
 import os
-import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
 

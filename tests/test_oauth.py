@@ -28,6 +28,7 @@ import sys
 import random
 import time
 import unittest
+import os
 
 import httplib2
 import mock
@@ -42,6 +43,8 @@ from oauth10a._compat import parse_qsl
 from oauth10a._compat import u
 
 import oauth10a as oauth
+print(sys.path)
+from example import server as exampleserver
 
 _UEMPTY = u('')
 _UBLANK = u(' ')
@@ -1787,6 +1790,30 @@ class TestClient(unittest.TestCase):
                                        headers=headers, body='param1=test1&param2=test2')
         self.assertEqual(int(resp['status']), 200)
 
+class TestDataStore(unittest.TestCase):
+    def test_lookup_consumer(self):
+        data_store = exampleserver.MockOAuthDataStore()
+
+        consumer = data_store.lookup_consumer('key')
+        self.assertTrue(isinstance(consumer, oauth.Consumer))
+
+        consumer2 = data_store.lookup_consumer('invalid-key')
+        self.assertEqual(consumer2, None)
+
+    def test_lookup_token(self):
+        data_store = exampleserver.MockOAuthDataStore()
+
+        request = data_store.lookup_token('request', 'requestkey')
+        self.assertTrue(isinstance(request, oauth.Token))
+
+        request = data_store.lookup_token('request', 'invalid-key')
+        self.assertEqual(request, None)
+
+        access = data_store.lookup_token('access', 'accesskey')
+        self.assertTrue(isinstance(access, oauth.Token))
+
+        access = data_store.lookup_token('access', 'invalid-key')
+        self.assertEqual(access, None)
 
 if __name__ == "__main__":
     import os
