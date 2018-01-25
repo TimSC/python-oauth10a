@@ -43,7 +43,6 @@ from oauth10a._compat import parse_qsl
 from oauth10a._compat import u
 
 import oauth10a as oauth
-print(sys.path)
 from example import server as exampleserver
 
 _UEMPTY = u('')
@@ -1790,7 +1789,7 @@ class TestClient(unittest.TestCase):
                                        headers=headers, body='param1=test1&param2=test2')
         self.assertEqual(int(resp['status']), 200)
 
-class TestDataStore(unittest.TestCase):
+class TestExampleDataStore(unittest.TestCase):
     def test_lookup_consumer(self):
         data_store = exampleserver.MockOAuthDataStore()
 
@@ -1814,6 +1813,42 @@ class TestDataStore(unittest.TestCase):
 
         access = data_store.lookup_token('access', 'invalid-key')
         self.assertEqual(access, None)
+
+class TestExampleServer(unittest.TestCase):
+    def test_init(self):
+        server = oauth.Server(data_store=exampleserver.MockOAuthDataStore(), 
+            signature_methods={'HMAC-SHA1' : oauth.SignatureMethod_HMAC_SHA1()})
+        self.assertTrue(isinstance(server.data_store, exampleserver.MockOAuthDataStore))
+        self.assertTrue('HMAC-SHA1' in server.signature_methods)
+        self.assertTrue(isinstance(server.signature_methods['HMAC-SHA1'], 
+            oauth.SignatureMethod_HMAC_SHA1))
+
+        server = oauth.Server()
+        self.assertEquals(server.data_store, None)
+        self.assertEquals(server.signature_methods, {})
+
+    def test_add_signature_method(self):
+        server = oauth.Server()
+        res = server.add_signature_method(oauth.SignatureMethod_HMAC_SHA1())
+        self.assertTrue(len(res) == 1) 
+        self.assertTrue('HMAC-SHA1' in res)
+        self.assertTrue(isinstance(res['HMAC-SHA1'], 
+            oauth.SignatureMethod_HMAC_SHA1))
+
+        res = server.add_signature_method(oauth.SignatureMethod_PLAINTEXT())
+        self.assertTrue(len(res) == 2) 
+        self.assertTrue('PLAINTEXT' in res)
+        self.assertTrue(isinstance(res['PLAINTEXT'], 
+            oauth.SignatureMethod_PLAINTEXT))
+
+    def test_fetch_request_token(self):
+        pass
+
+    def test_bad_token_fetch_request_token(self):
+        pass
+
+class TestClient(unittest.TestCase):
+    pass
 
 if __name__ == "__main__":
     import os
